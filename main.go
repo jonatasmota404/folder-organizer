@@ -1,46 +1,27 @@
 package main
 
 import (
-	"time"
+	"log"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	a := app.New()
+	myApp := app.New()
+	myWindow := myApp.NewWindow("Choice Widgets")
 
-	w := a.NewWindow("Clock")
-	w.Resize(fyne.Size{Width: 250, Height: 100})
-	w.SetMaster()
+	check := widget.NewCheck("Optional", func(value bool) {
+		log.Println("Check set to", value)
+	})
+	radio := widget.NewRadioGroup([]string{"Option 1", "Option 2"}, func(value string) {
+		log.Println("Radio set to", value)
+	})
+	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
+		log.Println("Select set to", value)
+	})
 
-	clock := widget.NewLabel("")
-	updateTime(clock)
-
-	go func() {
-		for range time.Tick(time.Second) {
-			updateTime(clock)
-		}
-	}()
-
-	w.SetContent(clock)
-	w.Show()
-
-	w2 := a.NewWindow("TESTE")
-	w2.SetContent(widget.NewLabel("More content"))
-	w2.SetContent(widget.NewButton("Open new", func() {
-		w3 := a.NewWindow("Third")
-		w3.SetContent(widget.NewLabel("Third"))
-		w3.Show()
-	}))
-	w2.Show()
-
-	a.Run()
-	//w.ShowAndRun()
-}
-
-func updateTime(clock *widget.Label) {
-	formatted := time.Now().Format("Time: 03:04:05")
-	clock.SetText(formatted)
+	myWindow.SetContent(container.NewVBox(check, radio, combo))
+	myWindow.ShowAndRun()
 }
