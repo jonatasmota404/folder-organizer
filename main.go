@@ -21,7 +21,7 @@ func main() {
 
 	separator := widget.NewSeparator()
 
-	openFolder := widget.NewButton("Folder Open", func() {
+	addFolderToOrganize := widget.NewButton("Folder Open", func() {
 		dialog.ShowFolderOpen(func(list fyne.ListableURI, err error) {
 			if err != nil {
 				fmt.Println(err)
@@ -31,23 +31,36 @@ func main() {
 				log.Println("Cancelled")
 				return
 			}
+
+			fmt.Println(list)
 		}, myWindow)
 	})
 
-	var data = [][]string{[]string{"top left", "top right"},
-		[]string{"bottom left", "bottom right"}}
+	openWindowToAddFiles := widget.NewButton("Open window", func() {
+		window := myApp.NewWindow("teste");
+		window.Show()
 
-	list := widget.NewTable(
-		func() (int, int) {
-			return len(data), len(data[0])
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("wide content")
-		},
-		func(i widget.TableCellID, o fyne.CanvasObject) {
-			o.(*widget.Label).SetText(data[i.Row][i.Col])
+		extensionPath := widget.NewEntry()
+
+		path := widget.NewEntry()
+
+		buttonFolder := widget.NewButton("open folder", func() {
+			dialog.ShowFolderOpen(func(lu fyne.ListableURI, err error) {
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				fmt.Println(lu.Path())
+				path.SetText(lu.Path())
+			}, window)
 		})
-	list.OnSelected(widget.TableCellID{ Row: 0,  Col: 0})
-	myWindow.SetContent(container.NewVBox(combo, openFolder, separator, list))
-	myWindow.ShowAndRun()
+
+		window.SetContent(container.NewVBox(extensionPath, path, buttonFolder))
+	})
+
+	
+	myWindow.SetContent(container.NewVBox(combo, addFolderToOrganize, separator, openWindowToAddFiles))
+	myWindow.Show()
+
+	myApp.Run()
 }
