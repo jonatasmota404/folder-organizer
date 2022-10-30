@@ -2,65 +2,66 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Choice Widgets")
+	myWindow.Resize(fyne.Size{Width: 500, Height: 500})
 
-	combo := widget.NewSelect([]string{"Option 1", "Option 2"}, func(value string) {
-		log.Println("Select set to", value)
-	})
+	//box := container.NewHBox(combo)
 
-	separator := widget.NewSeparator()
+	split := makeSplitTab(myWindow)
 
-	addFolderToOrganize := widget.NewButton("Folder Open", func() {
-		dialog.ShowFolderOpen(func(list fyne.ListableURI, err error) {
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			if list == nil {
-				log.Println("Cancelled")
-				return
-			}
-
-			fmt.Println(list)
-		}, myWindow)
-	})
-
-	openWindowToAddFiles := widget.NewButton("Open window", func() {
-		window := myApp.NewWindow("teste");
-		window.Show()
-
-		extensionPath := widget.NewEntry()
-
-		path := widget.NewEntry()
-
-		buttonFolder := widget.NewButton("open folder", func() {
-			dialog.ShowFolderOpen(func(lu fyne.ListableURI, err error) {
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				fmt.Println(lu.Path())
-				path.SetText(lu.Path())
-			}, window)
-		})
-
-		window.SetContent(container.NewVBox(extensionPath, path, buttonFolder))
-	})
-
-	
-	myWindow.SetContent(container.NewVBox(combo, addFolderToOrganize, separator, openWindowToAddFiles))
+	myWindow.SetContent(split)
 	myWindow.Show()
 
 	myApp.Run()
+}
+
+
+func makeMyContainer(window fyne.Window) fyne.CanvasObject {
+	dataList := binding.BindFloatList(&[]float64{0.1, 0.2, 0.3})
+
+	button := widget.NewButton("Append", func() {
+		dataList.Append(float64(dataList.Length()+1) / 10)
+	})
+
+	list := widget.NewListWithData(dataList,
+		func() fyne.CanvasObject {
+			return container.NewBorder(nil, nil, nil, widget.NewButton("+", nil),
+				widget.NewLabel("item x.y"))
+		},
+		func(item binding.DataItem, obj fyne.CanvasObject) {
+			f := item.(binding.Float)
+			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
+			text.Bind(binding.FloatToStringWithFormat(f, "item %0.1f"))
+
+			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
+			btn.OnTapped = func() {
+				val, _ := f.Get()
+				_ = f.Set(val + 1)
+			}
+		})
+	
+	listPanel := container.NewBorder(nil, button, nil, nil, list)
+
+	return listPanel
+}
+
+func makeSplitTab(window fyne.Window) fyne.CanvasObject {
+	left := makeMyContainer(window)//widget.NewMultiLineEntry()
+	//left.Wrapping = fyne.TextWrapWord
+	//left.SetText("Long text is looooooooooooooong")
+	right := container.NewVSplit(
+		widget.NewLabel("Label"),
+		widget.NewButton("Button", func() { fmt.Println("button tapped!") }),
+	)
+	return container.NewHSplit(container.NewVScroll(left), right)
 }
