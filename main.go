@@ -40,7 +40,17 @@ func makeMyContainer(window fyne.Window) fyne.CanvasObject {
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			//o.(*widget.Label).SetText(data[i])
-			fmt.Println(i, o)
+			btnAdd := o.(*fyne.Container).Objects[2].(*widget.Button)
+			btnAdd.OnTapped = func() {
+				fmt.Println(i)
+			}
+
+			btnRemove := o.(*fyne.Container).Objects[2].(*widget.Button)
+			btnRemove.OnTapped = func() {
+				fmt.Println(i)
+			}
+
+	
 		})
 	
 	button := widget.NewButton("Append", func() {
@@ -48,27 +58,6 @@ func makeMyContainer(window fyne.Window) fyne.CanvasObject {
 		data = append(data, val)
 		list.Refresh()
 	})
-
-	/*list := widget.NewListWithData(dataList,
-		func() fyne.CanvasObject {
-			return container.NewAdaptiveGrid(3, widget.NewLabel("item x"),
-			widget.NewButton("+", nil),
-			widget.NewButton("-", nil))
-		},
-		func(item binding.DataItem, obj fyne.CanvasObject) {
-			f := item.(binding.String)
-			fmt.Println(f)
-
-			//fmt.Println(obj)
-			text := obj.(*fyne.Container).Objects
-			fmt.Println(text)
-
-			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
-			btn.OnTapped = func() {
-				val, _ := f.Get()
-				_ = f.Set(val + 1)
-			}
-		})*/
 	
 	listPanel := container.NewBorder(nil, button, nil, nil, list)
 
