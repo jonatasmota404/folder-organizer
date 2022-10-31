@@ -40,7 +40,7 @@ func makeMyContainer(window fyne.Window) fyne.CanvasObject {
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			//o.(*widget.Label).SetText(data[i])
-			btnAdd := o.(*fyne.Container).Objects[2].(*widget.Button)
+			btnAdd := o.(*fyne.Container).Objects[1].(*widget.Button)
 			btnAdd.OnTapped = func() {
 				fmt.Println(i)
 			}
