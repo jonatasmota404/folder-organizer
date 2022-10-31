@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -27,28 +26,49 @@ func main() {
 
 
 func makeMyContainer(window fyne.Window) fyne.CanvasObject {
-	dataList := binding.BindFloatList(&[]float64{0.1, 0.2, 0.3})
+	var data = []string{"a", "string", "list"}
 
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			//return widget.NewLabel("template")
+			return container.NewAdaptiveGrid(3, widget.NewLabel("item x"),
+			widget.NewButton("+", nil),
+			widget.NewButton("-", nil))
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			//o.(*widget.Label).SetText(data[i])
+			fmt.Println(i, o)
+		})
+	
 	button := widget.NewButton("Append", func() {
-		dataList.Append(float64(dataList.Length()+1) / 10)
+		val := fmt.Sprintf("Item %d", len(data) +1)
+		data = append(data, val)
+		list.Refresh()
 	})
 
-	list := widget.NewListWithData(dataList,
+	/*list := widget.NewListWithData(dataList,
 		func() fyne.CanvasObject {
-			return container.NewBorder(nil, nil, nil, widget.NewButton("+", nil),
-				widget.NewLabel("item x.y"))
+			return container.NewAdaptiveGrid(3, widget.NewLabel("item x"),
+			widget.NewButton("+", nil),
+			widget.NewButton("-", nil))
 		},
 		func(item binding.DataItem, obj fyne.CanvasObject) {
-			f := item.(binding.Float)
-			text := obj.(*fyne.Container).Objects[0].(*widget.Label)
-			text.Bind(binding.FloatToStringWithFormat(f, "item %0.1f"))
+			f := item.(binding.String)
+			fmt.Println(f)
+
+			//fmt.Println(obj)
+			text := obj.(*fyne.Container).Objects
+			fmt.Println(text)
 
 			btn := obj.(*fyne.Container).Objects[1].(*widget.Button)
 			btn.OnTapped = func() {
 				val, _ := f.Get()
 				_ = f.Set(val + 1)
 			}
-		})
+		})*/
 	
 	listPanel := container.NewBorder(nil, button, nil, nil, list)
 
