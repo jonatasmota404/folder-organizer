@@ -26,11 +26,11 @@ func main() {
 
 
 func makeMyContainer(window fyne.Window) fyne.CanvasObject {
-	var data = []string{"a", "string", "list"}
+	var data = &[]string{"a", "string", "list"}
 
 	list := widget.NewList(
 		func() int {
-			return len(data)
+			return len(*data)
 		},
 		func() fyne.CanvasObject {
 			//return widget.NewLabel("template")
@@ -40,6 +40,7 @@ func makeMyContainer(window fyne.Window) fyne.CanvasObject {
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			//o.(*widget.Label).SetText(data[i])
+			
 			btnAdd := o.(*fyne.Container).Objects[1].(*widget.Button)
 			btnAdd.OnTapped = func() {
 				fmt.Println(i)
@@ -47,15 +48,17 @@ func makeMyContainer(window fyne.Window) fyne.CanvasObject {
 
 			btnRemove := o.(*fyne.Container).Objects[2].(*widget.Button)
 			btnRemove.OnTapped = func() {
-				fmt.Println(i)
+				s := *data
+				s = append(s[:i], s[i+1:]...)
+				*data = s
+				fmt.Println(*data)
 			}
 
-	
 		})
-	
+
 	button := widget.NewButton("Append", func() {
-		val := fmt.Sprintf("Item %d", len(data) +1)
-		data = append(data, val)
+		val := fmt.Sprintf("Item %d", len(*data) +1)
+		*data = append(*data, val)
 		list.Refresh()
 	})
 	
